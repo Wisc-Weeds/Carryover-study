@@ -1,0 +1,21 @@
+---
+title: "Untitled"
+author: "Maxwel Coura Oliveira"
+date: "10/14/2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+# Biomass 
+
+## Corn
+
+```{r echo=FALSE, warning=FALSE}
+Cri
+```

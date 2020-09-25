@@ -1,0 +1,384 @@
+---
+title: "ANOVA"
+author: "Maxwel Coura Oliveira"
+date: "10/5/2018"
+output: html_document
+---
+
+```{r library, include=FALSE}
+library(nlme)
+library(lme4)
+library(lmerTest)
+library(tidyverse)
+library(lsmeans)
+library(car)
+library(multcomp)
+library(multcompView)
+library(ggplot2)
+library(Matrix)
+library(emmeans)
+```
+
+
+
+```{r Data, include=FALSE}
+Data=read_csv("Data.csv")
+Data %>% drop_na()
+Data$rep=as.factor(Data$rep)
+Data$herbicide=as.factor(Data$herbicide)
+str(Data)
+```
+
+# Soybeans 2013
+
+```{r Soybean 2013, include=FALSE}
+Soy13=filter(Data, crop=="soybean" & year=="2013")
+str(Soy13)
+```
+
+## OATS
+
+```{r Oats 2013, include=FALSE}
+Oat13=filter(Soy13, species=="oat")
+str(Oat13)
+```
+
+```{r model oat 13}
+model1=glmer(weight ~ herbicide + (1|rep), data=Oat13)
+summary(model1)
+coef(model1)
+plot(ranef(model1))
+ANOVA<-anova(model1, test.statistic = "F", type = "II")
+summary(ANOVA)
+Oatslsm=lsmeans(model1 , "herbicide", contr="pairwise", adjust="none", reversed = TRUE)
+OatsCDL=CLD(Oatslsm, alpha=0.05, Letters=letters, adjust="none", sort=TRUE, reversed = TRUE)
+OatsCDL
+
+crop <- c("Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats")
+
+Oats13<- data.frame(crop, OatsCDL)
+```
+
+
+
+
+
+## WINTER RYE
+
+
+```{r winter rye 2013, include=FALSE}
+Wr13=filter(Soy13, species=="winter rye")
+str(Wr13)
+```
+
+```{r model winter rye 13}
+model2=glmer(weight ~ herbicide + (1|rep), data=Wr13)
+summary(model2)
+coef(model2)
+plot(ranef(model2))
+Anova(model2, test.statistic = "F", type = "II")
+Wrlsm=lsmeans(model2 , "herbicide", contr="pairwise", adjust="none")
+WrCDL=CLD(Wrlsm, alpha=0.05, Letters=letters, adjust="none", sort=TRUE, reversed = TRUE)
+WrCDL
+
+crop <- c("Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye")
+
+Rye13<- data.frame(crop, WrCDL)
+```
+
+
+## CRIMSON
+
+
+```{r crimson 2013, include=FALSE}
+Crimson13=filter(Soy13, species=="crimson")
+str(Crimson13)
+```
+
+```{r model crimson 13}
+model3=glmer(weight ~ herbicide + (1|rep), data=Crimson13)
+summary(model3)
+coef(model3)
+plot(ranef(model3))
+Anova(model3, test.statistic = "F", type = "II")
+Crimson13lsm=lsmeans(model3 , "herbicide", contr="pairwise", adjust="none")
+Crimson13CDL=CLD(Crimson13lsm, alpha=0.05, Letters=letters, adjust="none", sort=TRUE, reversed = TRUE)
+Crimson13CDL
+
+crop <- c("Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson")
+Cri13<- data.frame(crop, Crimson13CDL)
+```
+
+
+
+## BRUISER ANNUAL RYE
+
+
+```{r Bruiser annual ryegrass 2013, include=FALSE}
+Ba13=filter(Soy13, species=="bruiser annual ryegrass")
+str(Ba13)
+```
+
+```{r model Bruiser annual ryegrass 13}
+model4=glmer(weight ~ herbicide + (1|rep), data=Ba13)
+summary(model4)
+coef(model4)
+plot(ranef(model4))
+Anova(model4, test.statistic = "F", type = "II")
+Ba13lsm=lsmeans(model4 , "herbicide", contr="pairwise", adjust="none", reversed=TRUE)
+Ba13CDL=CLD(Ba13lsm, alpha=0.05, Letters=letters, adjust="none", sort=TRUE, reversed = TRUE)
+Ba13CDL
+
+crop <- c("Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye")
+Bru13<- data.frame(crop, Ba13CDL)
+```
+
+
+
+## RADISH
+
+
+```{r Radish 2013, include=FALSE}
+Radish13=filter(Soy13, species=="radish")
+str(Radish13)
+```
+
+```{r model Radish 13}
+model5=glmer(weight ~ herbicide + (1|rep), data=Radish13)
+summary(model5)
+coef(model5)
+plot(ranef(model5))
+Anova(model5, test.statistic = "F", type = "II")
+Radish13lsm=lsmeans(model5 , "herbicide", contr="pairwise", adjust="none")
+Radish13CDL=CLD(Radish13lsm, alpha=0.05, Letters=letters, adjust="none", sort=TRUE, reversed = TRUE)
+Radish13CDL
+
+crop <- c("Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish")
+Rad13<- data.frame(crop, Radish13CDL)
+```
+
+## KING ANNUAL RYE
+
+
+```{r king annual ryegrass 2013, include=FALSE}
+karg13=filter(Soy13, species=="king annual rye")
+str(karg13)
+```
+
+```{r model king annual ryegrass 13}
+model6=glmer(weight ~ herbicide + (1|rep), data=karg13)
+summary(model6)
+coef(model6)
+plot(ranef(model6))
+Anova(model6, test.statistic = "F", type = "II")
+karg13lsm=lsmeans(model6 , "herbicide", contr="pairwise", adjust="none", reversed=TRUE)
+karg13CDL=CLD(karg13lsm, alpha=0.05, Letters=letters, adjust="tukey", sort=TRUE, reversed = TRUE)
+karg13CDL
+
+crop <- c("King annual rye", "King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye")
+Kin13<- data.frame(crop, karg13CDL)
+```
+
+
+
+
+```{r}
+New <- bind_rows(Oats13, Rye13, Cri13, Bru13, Rad13, Kin13)
+
+New$herbicide <- factor(New$herbicide, levels=c("Cobra", "Extreme", "Pursuit", "Flexstar", "Warrant", "Dual", "Firstrate", "Zidua", "Gangster", "AuthorityMTZ", "Classic", "Sencor", "Valor", "Spartan", "Nontreated"), labels =c("lactofen (EPOST)", "imazethapyr + glyphosate (EPOST)",  "imazethapyr (EPOST)", "fomesafen (EPOST)", "acetochlor (EPOST)", "S-metolachlor (EPOST)", "cloransulam-methyl (EPOST)", "pyroxasulfone (PRE)", "flumioxazin + cloransulam-methyl (PRE)", "sulfentrazone + metribuzin (PRE)", "chlorimuron-ethyl (PRE)", "metribuzin (PRE)", "flumioxazin (PRE)", "sulfentrazone (PRE)",  "nontreated"))
+```
+
+```{r }
+s1<-ggplot(New, aes(x = herbicide, y=lsmean, label = .group)) + facet_grid(~crop) +
+  geom_point(shape = 16, size = 3) + coord_flip() + ylim(-1, 8) +
+  geom_errorbar(aes(ymin  =  lower.CL, ymax  =  upper.CL), width =  0.2, size  =  0.7) +
+  geom_text(nudge_x = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            nudge_y = c(2.5,  2.5, 2.5,  2.5, 2.5 , 2.5,  2.5, 2.5, 2.5,  2.5, 2.5 , 2.5,  2.5, 2.5, 2.5),
+            color   = "black") + labs(x="", y="Biomass (g)") +
+theme_bw() + theme(axis.title   = element_text(face = "bold", size=15), panel.grid = element_blank(),
+                   axis.text = element_text(size=12, color="black"), strip.text = element_text(size=12, color="black", face="bold"),
+                   plot.caption = element_text(hjust = 0)) + 
+  ggtitle ("", subtitle = "") + ggsave("Soy13.pdf", height=6, width=15)
+```
+
+
+
+
+
+
+# Soybeans 2014
+
+```{r Soybean 2014, include=FALSE}
+Soy14=filter(Data, crop=="soybean" & year=="2014")
+str(Soy14)
+```
+
+## OATS
+
+```{r Oats 2014, include=FALSE}
+Oat14=filter(Soy14, species=="oat")
+str(Oat14)
+```
+
+```{r model oat 14}
+model7=glmer(weight ~ herbicide + (1|rep), data=Oat14)
+summary(model7)
+coef(model7)
+plot(ranef(model7))
+Anova(model7, test.statistic = "F", type = "II")
+Oatslsm=lsmeans(model7 , "herbicide", contr="pairwise", adjust="none")
+OatsCDL=CLD(Oatslsm, alpha=0.05, Letters=letters, adjust="none", sort=TRUE, reversed = TRUE)
+OatsCDL
+
+crop <- c("Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats","Oats")
+
+Oats14<- data.frame(crop, OatsCDL)
+```
+
+
+
+## WINTER RYE
+
+
+```{r winter rye 2014, include=FALSE}
+Wr14=filter(Soy14, species=="winter rye")
+str(Wr14)
+```
+
+```{r model winter rye 14}
+model8=glmer(weight ~ herbicide + (1|rep), data=Wr14)
+summary(model8)
+coef(model8)
+plot(ranef(model8))
+Anova(model8, test.statistic = "F", type = "II")
+Wrlsm=lsmeans(model8 , "herbicide", contr="pairwise", adjust="none")
+WrCDL=CLD(Wrlsm, alpha=0.05, Letters=letters, adjust="none", sort=TRUE, reversed = TRUE)
+WrCDL
+
+crop <- c("Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye")
+
+Rye14<- data.frame(crop, WrCDL)
+```
+
+
+
+## CRIMSON
+
+
+```{r crimson 2014, include=FALSE}
+Crimson14=filter(Soy14, species=="crimson")
+str(Crimson14)
+```
+
+```{r model crimson 14}
+model9=glmer(weight ~ herbicide + (1|rep), data=Crimson14)
+summary(model9)
+coef(model9)
+plot(ranef(model9))
+Anova(model9, test.statistic = "F", type = "II")
+Crimson14lsm=lsmeans(model9 , "herbicide", contr="pairwise", adjust="none")
+Crimson14CDL=CLD(Crimson14lsm, alpha=0.05, Letters=letters, adjust="none", sort=TRUE, reversed = TRUE)
+Crimson14CDL
+
+crop <- c("Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson","Crimson")
+Cri14<- data.frame(crop, Crimson14CDL)
+```
+
+
+
+## BRUISER ANNUAL RYE
+
+
+```{r Bruiser annual ryegrass 2014, include=FALSE}
+Ba14=filter(Soy14, species=="bruiser annual ryegrass")
+str(Ba14)
+```
+
+```{r model Bruiser annual ryegrass 14}
+model10=glmer(weight ~ herbicide + (1|rep), data=Ba14)
+summary(model10)
+coef(model10)
+plot(ranef(model10))
+Anova(model10, test.statistic = "F", type = "II")
+Ba14lsm=lsmeans(model10, "herbicide", contr="pairwise", adjust="none", reversed=TRUE)
+Ba14CDL=CLD(Ba14lsm, alpha=0.05, Letters=letters, adjust="none", sort=TRUE, reversed = TRUE)
+Ba14CDL
+
+crop <- c("Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye")
+Bru14<- data.frame(crop, Ba14CDL)
+```
+
+
+## RADISH
+
+
+```{r Radish 2014, include=FALSE}
+Radish14=filter(Soy14, species=="radish")
+str(Radish14)
+```
+
+```{r model Radish 14}
+model11=glmer(weight ~ herbicide + (1|rep), data=Radish14)
+summary(model11)
+coef(model11)
+plot(ranef(model11))
+Anova(model11, test.statistic = "F", type = "II")
+Radish14lsm=lsmeans(model11, "herbicide", contr="pairwise", adjust="none")
+Radish14CDL=CLD(Radish14lsm, alpha=0.05, Letters=letters, adjust="none", sort=TRUE, reversed = TRUE)
+Radish14CDL
+
+crop <- c("Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish")
+Rad14<- data.frame(crop, Radish14CDL)
+```
+
+
+## KING ANNUAL RYE
+
+
+```{r king annual ryegrass 2014, include=FALSE}
+karg14=filter(Soy14, species=="king annual rye")
+str(karg14)
+```
+
+```{r model king annual ryegrass 14}
+model12=glmer(weight ~ herbicide + (1|rep), data=karg14)
+summary(model12)
+coef(model12)
+plot(ranef(model12))
+Anova(model12, test.statistic = "F", type = "II")
+karg14lsm=lsmeans(model12, "herbicide", contr="pairwise", adjust="none")
+karg14CDL=CLD(karg14lsm, alpha=0.05, Letters=letters, adjust="none", sort=TRUE, reversed = TRUE)
+karg14CDL
+
+crop <- c("King annual rye", "King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye")
+Kin14<- data.frame(crop, karg14CDL)
+```
+
+
+
+```{r}
+New1 <- bind_rows(Oats14, Rye14, Cri14, Bru14, Rad14, Kin14)
+
+New1$herbicide <- factor(New1$herbicide, levels=c("Cobra", "Extreme", "Pursuit", "Flexstar", "Warrant", "Dual", "Firstrate", "Zidua", "Gangster", "AuthorityMTZ", "Classic", "Sencor", "Valor", "Spartan", "Nontreated"), labels =c("lactofen (EPOST)", "imazethapyr + glyphosate (EPOST)",  "imazethapyr (EPOST)", "fomesafen (EPOST)", "acetochlor (EPOST)", "S-metolachlor (EPOST)", "cloransulam-methyl (EPOST)", "pyroxasulfone (PRE)", "flumioxazin + cloransulam-methyl (PRE)", "sulfentrazone + metribuzin (PRE)", "chlorimuron-ethyl (PRE)", "metribuzin (PRE)", "flumioxazin (PRE)", "sulfentrazone (PRE)",  "nontreated"))
+```
+
+```{r }
+s2<-ggplot(New1, aes(x = herbicide, y=lsmean, label = .group)) + facet_grid(~crop) +
+  geom_point(shape = 16, size = 3) + coord_flip() + ylim(-2, 15) +
+  geom_errorbar(aes(ymin  =  lower.CL, ymax  =  upper.CL), width =  0.2, size  =  0.7) +
+  geom_text(nudge_x = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            nudge_y = c(5.5,  5.5, 5.5,  5.5, 5.5,  5.5, 5.5,  5.5, 5.5,  5.5, 5.5,  5.5,  5.5, 5.5, 5.5),
+            color   = "black") + labs(x="", y="Biomass (g)") +
+theme_bw() + theme(axis.title   = element_text(face = "bold", size=15), panel.grid = element_blank(),
+                   axis.text = element_text(size=12, color="black"), strip.text = element_text(size=12, color="black", face="bold"),
+                   plot.caption = element_text(hjust = 0)) + 
+  ggtitle ("", subtitle = "") + ggsave("Soy14.pdf", height=6, width=15)
+```
+
+
+```{r}
+library(gridExtra)
+library(cowplot)
+plot_grid(s1, s2, nrow = 2, labels = c("A", "B")) +
+  ggsave("Soybean.pdf", height=12, width=15, dpi=600)
+```

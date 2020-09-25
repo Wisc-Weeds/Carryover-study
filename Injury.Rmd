@@ -1,0 +1,556 @@
+---
+title: "Injury"
+author: "Maxwel Coura Oliveira"
+date: "02/05/2020"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r include=FALSE}
+library(lme4)
+library(lmerTest)
+library(tidyverse)
+library(lsmeans)
+library(car)
+library(multcomp)
+library(multcompView)
+library(ggplot2)
+library(betareg)
+library(glmmTMB)
+library(effects)
+library(broom)
+```
+
+```{r include=FALSE}
+Data <- read_csv("Data.csv") %>% 
+  mutate(control = injury/100)
+Data$year <- as.factor(Data$year)
+glimpse(Data)
+```
+
+# Corn
+
+```{r include=FALSE}
+Corn1 <- Data %>% 
+       filter(crop == "corn")
+
+Corn1$herbicide <- factor(Corn1$herbicide, levels=c("Zemax + Halex GT",   "SureStart", "Stinger",  "Accent Q", "Resolve", "Basis Blend", "Princep 4FL", "Callisto", "Laudis", "Impact", "Verdict", "Sharpen", "Fierce", "Python", "Nontreated"), labels =c("S-metolachlor fb mesotrione +  glyphosate",  "acetochlor + flumetsulam + clopyralid", "clopyralid",  "nicosulfuron", "rimsulfuron", "rimsulfuron + thifensulfuron-methyl", "simazine", "mesotrione", "tembotrione", "topramezone", "saflufenacil + dimethenamid-P", "saflufenacil", "flumioxazin + pyroxasulfone", "flumetsulam",  "nontreated"))
+```
+
+
+
+## Oat/Peas
+
+
+
+```{r include=FALSE}
+Oat <- Corn1 %>% 
+  filter(species =="oat")
+
+model1 <- glmmTMB(control ~ herbicide*year + (1|rep), beta_family(link = "logit"), data=Oat)
+#summary(model1)
+
+Anova(model1, test.statistic = "Chisq", type = "II")
+
+lsm1 <- emmeans(model1 , ~ herbicide|year, contr="pairwise", adjust="none", type="response")
+```
+
+```{r warning=FALSE, include=FALSE}
+CLD(lsm1, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r include=FALSE}
+crop <- c("Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea")
+year <- c("2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014")
+
+#lsm1 <- as.data.frame(lsm1$emmeans)
+#Ots <- data.frame(crop, lsm1)
+```
+
+
+\tiny
+```{r echo=FALSE}
+lsm1 <- as.data.frame(lsm1$contrasts)
+lsm1 
+```
+
+
+## Radish
+
+```{r include=FALSE}
+Radish <- Corn1 %>% 
+  filter(species =="radish")
+
+model2 <- glmmTMB(control ~ herbicide*year + (1|rep), beta_family(link = "logit"), data=Radish)
+#summary(model2)
+
+Anova(model2)
+
+lsm2 <- emmeans(model2 , ~ herbicide|year, contr="pairwise", adjust="none", type="response")
+
+```
+
+```{r warning=FALSE, include=FALSE}
+CLD(lsm2, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+
+```{r include=FALSE}
+crop <- c("Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish", "Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish")
+year <- c("2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014")
+
+#lsm2 <- as.data.frame(lsm2$emmeans)
+#Rad <- data.frame(crop, lsm2)
+```
+
+\tiny
+
+```{r echo=FALSE}
+lsm2 <- as.data.frame(lsm2$contrasts)
+lsm2 
+```
+
+
+## Winter rye
+
+```{r include=FALSE}
+Winter <- Corn1 %>% 
+  filter(species =="winter rye")
+
+model3 <- glmmTMB(control ~ herbicide*year + (1|rep), beta_family(link = "logit"), data=Winter)
+#summary(model3)
+
+Anova(model3)
+
+lsm3 <- emmeans(model3, ~ herbicide|year, contr="pairwise", adjust="none", type="response")
+
+lsmh=emmeans(model3, ~ "herbicide", contr="pairwise", adjust="none", type="response")
+
+CDLh=CLD(lsmh, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+CLD(lsm3, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r include=FALSE}
+crop <- c("Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye", "Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye")
+year <- c("2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014")
+
+#lsm3 <- as.data.frame(lsm3$emmeans)
+#Win <- data.frame(crop, lsm3)
+```
+
+
+\tiny
+
+```{r echo=FALSE}
+lsm3 <- as.data.frame(lsm3$contrasts)
+lsm3 
+```
+
+## Bruiser
+
+```{r include=FALSE}
+Bruiser <- Corn1 %>% 
+  filter(species =="bruiser annual ryegrass")
+
+model4 <- glmmTMB(control ~ herbicide*year + (1|rep), beta_family(link = "logit"), data=Bruiser)
+#summary(model4)
+
+Anova(model4)
+
+lsm4 <- emmeans(model4 , ~ herbicide|year, contr="pairwise", adjust="none", type="response")
+
+lsmh=emmeans(model4, ~ "herbicide", contr="pairwise", adjust="none", type="response")
+lsmy=emmeans(model4, ~ "year", contr="pairwise", adjust="none", type="response")
+CDLh=CLD(lsmh, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+CDLy=CLD(lsmy, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+CLD(lsm4, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r include=FALSE}
+crop <- c("Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye", "Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye")
+year <- c("2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014")
+
+#lsm4 <- as.data.frame(lsm4$emmeans)
+#Bru <- data.frame(crop, lsm4)
+```
+
+\tiny
+
+```{r echo=FALSE}
+lsm4 <- as.data.frame(lsm4$contrasts)
+lsm4 
+```
+
+
+## King
+
+```{r include=FALSE}
+King <- Corn1 %>% 
+  filter(species =="king annual rye")
+
+model5 <- glmmTMB(control ~ herbicide*year + (1|rep), beta_family(link = "logit"), data=King)
+#summary(model5)
+
+Anova(model5, type = "II")
+
+lsm5 <- emmeans(model5 , ~ herbicide|year, contr="pairwise", adjust="none", type="response")
+
+lsm=emmeans(model5, ~ herbicide|year, contr="pairwise", adjust="none", type="response")
+CDL=CLD(lsm, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+CLD(lsm5, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+
+```{r include=FALSE}
+crop <- c("King annual rye", "King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye", "King annual rye", "King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye")
+year <- c("2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014")
+
+#lsm5 <- as.data.frame(lsm5$emmeans)
+#Kin <- data.frame(crop, lsm5)
+```
+
+\tiny
+
+```{r echo=FALSE}
+lsm5 <- as.data.frame(lsm5$contrasts)
+lsm5 
+```
+
+## Crimson
+
+```{r include=FALSE}
+Crimson <- Corn1 %>% 
+  filter(species =="crimson")
+
+model6 <- glmmTMB(control ~ herbicide*year + (1|rep), beta_family(link = "logit"), data=Crimson)
+#summary(model6)
+
+Anova(model6)
+
+lsm6 <- emmeans(model6, ~ herbicide|year, contr="pairwise", adjust="none", type="response")
+
+lsmy=emmeans(model6, ~ "year", contr="pairwise", adjust="none", type="response")
+CDLy=CLD(lsmy, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+CLD(lsm6, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+
+```{r include=FALSE}
+crop <- c("Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover", "Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover")
+year <- c("2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014")
+
+#lsm6 <- as.data.frame(lsm6$emmeans)
+#Cri <- data.frame(crop, lsm6)
+```
+
+\tiny
+
+```{r echo=FALSE}
+lsm6 <- as.data.frame(lsm6$contrasts)
+lsm6 
+```
+
+
+```{r eval=FALSE, warning=FALSE, include=FALSE}
+NewCI <- bind_rows(Bru, Cri, Kin, Ots, Rad, Win)
+NewCI
+```
+
+```{r eval=FALSE, include=FALSE}
+a <- ggplot(NewC, aes(x = herbicide, y=prop*100)) + facet_grid(year~crop) + geom_bar(aes(y=NewCI$prop*100, fill="Injury"), stat="identity") +
+  geom_point(shape = 16, size = 3, aes(color="Cover")) + #geom_point(aes(y=NewI$prop*100), shape = 1, size = 1, color="green") +
+  coord_flip() + ylim(0, 100) + labs(y="Percentage (%)", x="") + geom_errorbar(aes(ymin  =  lower.CL*100, ymax  =  upper.CL*100, color="Cover"), width =  0.2, size  =  0.7) +  #geom_errorbar(aes(ymin  =  NewI$lower.CL*100, ymax  =  NewI$upper.CL*100, fill="Injury"), width =  0.2, size  =  0.7) +
+  scale_fill_manual(name="", values=c("lightgreen")) + scale_color_manual(name="", values=c("black", "black")) + 
+  theme_bw() + theme(axis.title  = element_text(face = "bold", size=15), panel.grid = element_blank(), legend.position = "bottom",
+                   axis.text = element_text(size=12, color="black"), strip.text = element_text(size=12, color="black", face="bold"),
+                   plot.caption = element_text(hjust = 0), legend.text = element_text(size=15)) + 
+  ggtitle ("", subtitle = "")   + ggsave("Corn.png", height=7, width=15)
+```
+
+
+```{r eval=FALSE, include=FALSE}
+library(gridExtra)
+library(cowplot)
+plot_grid(d, a, nrow = 2, labels = c("A", "B")) +
+  ggsave("CornF.pdf", height=14, width=15, dpi=600)
+```
+
+
+
+
+
+
+# Soybean
+
+
+```{r include=FALSE}
+Soybean1 <- Data %>% 
+   filter(crop == "soybean")
+
+
+Soybean1$herbicide <- factor(Soybean1$herbicide, levels=c("Cobra", "Extreme", "Pursuit", "Flexstar", "Warrant", "Dual", "Firstrate", "Zidua", "Gangster", "AuthorityMTZ", "Classic", "Sencor", "Valor", "Spartan", "Nontreated"), labels =c("lactofen (EPOST)", "imazethapyr + glyphosate (EPOST)",  "imazethapyr (EPOST)", "fomesafen (EPOST)", "acetochlor (EPOST)", "S-metolachlor (EPOST)", "cloransulam-methyl (EPOST)", "pyroxasulfone (PRE)", "flumioxazin + cloransulam-methyl (PRE)", "sulfentrazone + metribuzin (PRE)", "chlorimuron-ethyl (PRE)", "metribuzin (PRE)", "flumioxazin (PRE)", "sulfentrazone (PRE)",  "nontreated"))
+```
+
+## Oat/Peas
+
+```{r include=FALSE}
+Oat <- Soybean1 %>% 
+  filter(species =="oat")
+
+model7 <- glmmTMB(control ~ herbicide*year + (1|rep), beta_family(link = "logit"), data=Oat)
+#summary(model7)
+
+Anova(model7, type = "II")
+
+lsm7=emmeans(model7 , ~ herbicide|year, contr="pairwise", adjust="none", type="response")
+
+CDL=CLD(lsm, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+CLD(lsm7, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r include=FALSE}
+crop <- c("Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea","Oat/Pea")
+year <- c("2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014")
+
+#lsm7 <- as.data.frame(lsm7$emmeans)
+#OtsI <- data.frame(crop, lsm7)
+```
+
+\tiny
+
+```{r echo=FALSE}
+lsm7 <- as.data.frame(lsm7$contrasts)
+lsm7 
+```
+
+
+## Radish
+
+```{r include=FALSE}
+Radish <- Soybean1 %>% 
+  filter(species =="radish")
+
+model8 <- glmmTMB(control ~ herbicide*year + (1|rep), beta_family(link = "logit"), data=Radish)
+#summary(model8)
+
+Anova(model8)
+
+
+lsm8=emmeans(model8 , ~ herbicide|year, contr="pairwise", adjust="none", type="response")
+
+CDL=CLD(lsm8, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+CLD(lsm8, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r include=FALSE}
+crop <- c("Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish", "Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish","Radish")
+year <- c("2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014")
+
+#lsm8 <- as.data.frame(lsm8$emmeans)
+#RadI <- data.frame(crop, lsm8)
+```
+
+\tiny
+
+```{r echo=FALSE}
+lsm8 <- as.data.frame(lsm8$contrasts)
+lsm8
+```
+
+## Winter rye
+
+```{r include=FALSE}
+Winter <- Soybean1 %>% 
+  filter(species =="winter rye")
+
+model9 <- glmmTMB(control ~ herbicide*year + (1|rep), beta_family(link = "logit"), data=Winter)
+#summary(model9)
+
+Anova(model9)
+
+lsm9=emmeans(model9 , ~ herbicide|year, contr="pairwise", adjust="none", type="response")
+
+lsmy=emmeans(model9, ~ "year", contr="pairwise", adjust="none", type="response")
+
+CDLy=CLD(lsmy, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+CLD(lsm9, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r include=FALSE}
+crop <- c("Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye", "Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye","Winter rye")
+year <- c("2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014")
+
+#lsm9 <- as.data.frame(lsm9$emmeans)
+#WinI <- data.frame(crop, lsm9)
+```
+
+```{r echo=FALSE}
+lsm9 <- as.data.frame(lsm9$contrasts)
+lsm9 
+```
+
+## Bruiser
+
+```{r include=FALSE}
+Bruiser <- Soybean1 %>% 
+  filter(species =="bruiser annual ryegrass")
+
+model10 <- glmmTMB(control ~ herbicide*year + (1|rep), beta_family(link = "logit"), data=Bruiser)
+#summary(model10)
+
+Anova(model10)
+
+lsm10=emmeans(model10 , ~ herbicide|year, contr="pairwise", adjust="none", type="response")
+
+lsmy=lsmeans(model10, ~ "year", contr="pairwise", adjust="none")
+
+CDLy=CLD(lsmy, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+CLD(lsm10, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r include=FALSE}
+crop <- c("Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye", "Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye","Buiser annual rye")
+year <- c("2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014")
+
+#lsm10 <- as.data.frame(lsm10$emmeans)
+#BruI <- data.frame(crop, lsm10)
+```
+
+
+\tiny
+
+```{r echo=FALSE}
+lsm10 <- as.data.frame(lsm10$contrasts)
+lsm10 
+```
+
+
+## King
+
+
+
+```{r include=FALSE}
+King <- Soybean1 %>% 
+  filter(species =="king annual rye")
+
+model11 <- glmmTMB(control ~ herbicide*year + (1|rep), beta_family(link = "logit"), data=King)
+#summary(model11)
+
+Anova(model11)
+
+lsm11=emmeans(model11, ~ herbicide|year, contr="pairwise", adjust="none", type="response")
+
+CDL=CLD(lsm, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+CLD(lsm11, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r include=FALSE}
+crop <- c("King annual rye", "King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye", "King annual rye", "King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye","King annual rye")
+year <- c("2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014")
+
+#lsm11 <- as.data.frame(lsm11$emmeans)
+#KinI <- data.frame(crop, lsm11)
+```
+
+\tiny
+
+```{r echo=FALSE}
+lsm11 <- as.data.frame(lsm11$contrasts)
+lsm11 
+```
+
+
+## Crimson
+
+```{r include=FALSE}
+Crimson <- Soybean1 %>% 
+  filter(species =="crimson")
+
+model12 <- glmmTMB(control ~ herbicide*year + (1|rep), beta_family(link = "logit"), data=Crimson)
+#summary(model12)
+
+Anova(model12)
+
+lsm12=emmeans(model12, ~ herbicide|year, contr="pairwise", adjust="none", type="response")
+
+
+lsmh=emmeans(model12, ~ "herbicide", contr="pairwise", adjust="none", type="response")
+lsmy=lsmeans(model12, ~ "year", contr="pairwise", adjust="none", type="response")
+CDLh=CLD(lsmh, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+CDLy=CLD(lsmy, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+CLD(lsm12, alpha=0.05, Letters=letters, adjust="none", reversed = TRUE)
+```
+
+```{r include=FALSE}
+crop <- c("Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover", "Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover","Crimson clover")
+year <- c("2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2013", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014", "2014")
+
+#lsm12 <- as.data.frame(lsm12$emmeans)
+#CriI <- data.frame(crop, lsm12)
+```
+
+\tiny
+
+```{r echo=FALSE}
+lsm12 <- as.data.frame(lsm12$contrasts)
+lsm12 
+```
+
+
+```{r eval=FALSE, warning=FALSE, include=FALSE}
+NewI <- bind_rows(BruI, CriI, KinI, OtsI, RadI, WinI)
+NewI
+```
+
+
+```{r eval=FALSE, include=FALSE}
+b <- ggplot(New, aes(x = herbicide, y=prop*100)) + facet_grid(year~crop) + geom_bar(aes(y=NewI$prop*100, fill="Injury"), stat="identity") +
+  geom_point(shape = 16, size = 3, aes(color="Cover")) + #geom_point(aes(y=NewI$prop*100), shape = 1, size = 1, color="green") +
+  coord_flip() + ylim(0, 100) + labs(y="Percentage (%)", x="") + geom_errorbar(aes(ymin  =  lower.CL*100, ymax  =  upper.CL*100, color="Cover"), width =  0.2, size  =  0.7) +  #geom_errorbar(aes(ymin  =  NewI$lower.CL*100, ymax  =  NewI$upper.CL*100, fill="Injury"), width =  0.2, size  =  0.7, color="lightgreen") +
+  scale_fill_manual(name="", values=c("lightgreen")) + scale_color_manual(name="", values=c("black", "black")) + 
+ theme_bw() + theme(axis.title  = element_text(face = "bold", size=15), panel.grid = element_blank(), legend.position = "bottom",
+                   axis.text = element_text(size=12, color="black"), strip.text = element_text(size=12, color="black", face="bold"),
+                   plot.caption = element_text(hjust = 0), legend.text = element_text(size=15)) + 
+  ggtitle ("", subtitle = "")   + ggsave("Soybean2.png", height=7, width=15)
+```
+
+
+
+```{r eval=FALSE, include=FALSE}
+library(gridExtra)
+library(cowplot)
+plot_grid(c, b, nrow = 2, labels = c("A", "B")) +
+  ggsave("SoyF.pdf", height=14, width=15, dpi=600)
+```

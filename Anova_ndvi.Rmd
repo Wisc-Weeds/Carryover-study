@@ -1,0 +1,56 @@
+---
+title: "nevi_ANOVA"
+author: "Maxwel Coura Oliveira"
+date: "10/12/2018"
+output: html_document
+---
+
+
+
+```{r include=FALSE}
+ndvi <- read_csv("data.csv")
+glimpse(ndvi)
+ndvi$year <- as.factor(ndvi$year)
+```
+
+
+```{r}
+corn_ndvi <- ndvi %>% 
+  filter(crop == "corn")
+```
+
+```{r}
+corn_ndvi$herbicide <- factor(corn_ndvi$herbicide, levels=c("Zemax + Halex GT",   "SureStart", "Stinger",  "Accent Q", "Resolve", "Basis Blend", "Princep 4FL", "Callisto", "Laudis", "Impact", "Verdict", "Sharpen", "Fierce", "Python", "Nontreated"), labels =c("S-metolachlor + mesotrione +  glyphosate (LPOST)",  "acetochlor + flumetsulam + clopyralid (EPOST)", "clopyralid (EPOST)",  "nicosulfuron (EPOST)", "rimsulfuron (EPOST)", "rimsulfuron + thifensulfuron-methyl (EPOST)", "simazine (EPOST)", "mesotrione (EPOST)", "tembotrione (EPOST)", "topramezone (EPOST)", "saflufenacil + dimethenamid-P (PRE)", "saflufenacil (PRE)", "flumioxazin + pyroxasulfone (PRE)", "flumetsulam (PRE)",  "nontreated"))
+```
+
+```{r}
+corn_ndvi$species <- factor(corn_ndvi$species, levels=c("bruiser annual ryegrass", "crimson", "king annual rye", "oat", "radish", "winter rye"), labels=c("Bruiser annual ryegrass", "Crimson clover", "King annual rye", "Oats", "Radish", "Winter rye"))
+```
+
+```{r}
+corn_ndvi <- corn_ndvi %>% 
+  group_by(species, herbicide, year) %>% 
+     summarise(ndvi = mean(ndvi)) %>% 
+  arrange(species) %>% 
+  arrange(year)
+```
+
+
+
+
+
+
+```{r} 
+e <- ggplot(corn_ndvi, aes(x = herbicide, y=ndvi)) + facet_grid(year~species) + 
+  geom_bar(stat="identity", color="blue") + 
+  coord_flip() +  labs(y="NDVI", x="") + geom_errorbar(aes(ymin  =  lower.CL, ymax  =  upper.CL), width =  0.2, size  =  0.7, color="blue") +  scale_fill_manual(name="", values=c("lightgreen")) + scale_color_manual(name="", values=c("black", "black")) + 
+  theme_bw() + theme(axis.title  = element_text(face = "bold", size=15), panel.grid = element_blank(), legend.position = "bottom",
+                   axis.text = element_text(size=12, color="black"), strip.text = element_text(size=12, color="black", face="bold"),
+                   plot.caption = element_text(hjust = 0), legend.text = element_text(size=12))  +  ggtitle ("", subtitle = "")  +  scale_y_continuous(breaks=c(0, 500, 1000, 1500, 2000), labels = c("0", "0.5", "1", "1.5", "2")) + 
+
+   ggsave("CornBio.pdf", height=7, width=15) 
+```
+
+
+
+
